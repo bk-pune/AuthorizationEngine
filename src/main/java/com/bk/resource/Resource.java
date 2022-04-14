@@ -19,10 +19,4 @@ public @interface Resource {
      * @return
      */
     String id();
-
-    /**
-     * Type of this resource such as REST or ENTITY or DATABASE.
-     * @return
-     */
-    ResourceType type();
 }
