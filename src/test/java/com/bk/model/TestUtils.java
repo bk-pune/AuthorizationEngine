@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestUtils {
 
-    private static final String SAMPLE_POLICY = "{\"id\":1,\"enabled\":true,\"modifiedOn\":1211315545,\"modifiedBy\":\"admin\",\"statements\":[{\"id\":\"1\",\"resourceId\":\"user\",\"operations\":[\"getUser\"]},{\"id\":\"1\",\"resourceId\":\"role\",\"operations\":[\"op1\",\"op2\"]}]}";
+    private static final String SAMPLE_POLICY = "{\"id\":1,\"enabled\":true,\"modifiedOn\":1211315545,\"modifiedBy\":\"admin\",\"statements\":[{\"id\":\"1\",\"resourceId\":\"user\",\"operations\":[\"getUser\"]},{\"id\":\"1\",\"resourceId\":\"role\",\"operations\":[\"fetchRole\",\"op2\"]}]}";
     public static final AuthorizationPolicy getSamplePolicy() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(SAMPLE_POLICY, AuthorizationPolicy.class);

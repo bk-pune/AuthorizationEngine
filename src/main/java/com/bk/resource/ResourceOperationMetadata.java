@@ -10,6 +10,15 @@ public class ResourceOperationMetadata {
     private String [] actions;
     private Boolean isProtected;
     private String name;
+    private String urlPattern;
+
+    public String getUrlPattern() {
+        return urlPattern;
+    }
+
+    public void setUrlPattern(String urlPattern) {
+        this.urlPattern = urlPattern;
+    }
 
     public String getName() {
         return name;

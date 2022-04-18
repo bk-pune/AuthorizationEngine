@@ -1,10 +1,7 @@
 package com.bk.registry;
 
 import com.bk.exception.ResourceDefinitionException;
-import com.bk.resource.Resource;
-import com.bk.resource.ResourceMetadata;
-import com.bk.resource.ResourceOperation;
-import com.bk.resource.ResourceOperationMetadata;
+import com.bk.resource.*;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.springframework.http.server.PathContainer;
@@ -13,9 +10,12 @@ import org.springframework.web.servlet.mvc.condition.PathPatternsRequestConditio
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Complete view of the Authorization schema, such as Resources and ResourceOperations.<br>
@@ -50,20 +50,34 @@ public class AuthorizationModel implements Registry {
         }
     }
 
+    /**
+     * Builds Operation metadata based on the API model.
+     */
     private void buildRestAPItoResourceOperationMapping() {
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
         // REST URLs vs Method handler
         for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : map.entrySet()) {
             RequestMappingInfo info = entry.getKey();
             HandlerMethod method = entry.getValue();
-            ResourceOperation resourceOperation = method.getMethodAnnotation(ResourceOperation.class);
+            ResourceAccess resourceOperation = method.getMethodAnnotation(ResourceAccess.class);
             if(resourceOperation != null) {
-                ResourceOperationMetadata resourceOperationMetadata = createResourceOperationMetadata(resourceOperation);
-                PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
-                if (pathPatternsCondition != null && !pathPatternsCondition.isEmptyPathMapping()) {
-                    Set<PathPattern> patterns = pathPatternsCondition.getPatterns();
-                    for(PathPattern pattern: patterns) {
-                        restApiResourceOperationMapping.put(pattern, resourceOperationMetadata);
+                Operation[] operations = resourceOperation.operations();
+                for (Operation operation: operations) {
+
+                    PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
+                    if (pathPatternsCondition != null && !pathPatternsCondition.isEmptyPathMapping()) {
+                        Set<PathPattern> patterns = pathPatternsCondition.getPatterns();
+                        for(PathPattern pattern: patterns) {
+                            // patterns defined for operations must match with the RequestMapping defined on the REST API
+                            if(pattern.matches(PathContainer.parsePath(operation.urlPattern()))) {
+                                PathPattern operationPattern = PathPatternParser.defaultInstance.parse(operation.urlPattern());
+                                ResourceOperationMetadata resourceOperationMetadata = createResourceOperationMetadata(operation);
+                                restApiResourceOperationMapping.put(operationPattern, resourceOperationMetadata);
+                            } else {
+                                throw new ResourceDefinitionException("Pattern for the Operation is not defined correctly. " +
+                                        "Operation: " + operation.name() + ". Pattern: "+operation.urlPattern());
+                            }
+                        }
                     }
                 }
             }
@@ -93,13 +107,16 @@ public class AuthorizationModel implements Registry {
     }
 
     private void scanProjectForResourceOperations(Reflections reflections) {
-        Set<Method> resourceOperationMethods = reflections.getMethodsAnnotatedWith(ResourceOperation.class);
+        Set<Method> resourceOperationMethods = reflections.getMethodsAnnotatedWith(ResourceAccess.class);
         for(Method method: resourceOperationMethods) {
-            ResourceOperation resourceOperation = method.getAnnotation(ResourceOperation.class);
-            ResourceOperationMetadata resourceOperationMetadata = createResourceOperationMetadata(resourceOperation);
-            validateResourceOperation(method, resourceOperationMetadata);
-            resourceOperations.put(resourceOperation.name(), resourceOperationMetadata);
-            resources.get(resourceOperationMetadata.getResourceId()).getResourceOperationMetadata().add(resourceOperationMetadata);
+            ResourceAccess resourceOperation = method.getAnnotation(ResourceAccess.class);
+            Operation[] operations = resourceOperation.operations();
+            for(Operation operation: operations) {
+                ResourceOperationMetadata resourceOperationMetadata = createResourceOperationMetadata(operation);
+                validateResourceOperation(method, resourceOperationMetadata);
+                resourceOperations.put(operation.name(), resourceOperationMetadata);
+                resources.get(resourceOperationMetadata.getResourceId()).getResourceOperationMetadata().add(resourceOperationMetadata);
+            }
         }
         if(resourceOperations.isEmpty()) {
             System.err.println("Not a single ResourceOperation defined in the entire application!");
@@ -120,12 +137,11 @@ public class AuthorizationModel implements Registry {
         return true;
     }
 
-    private ResourceOperationMetadata createResourceOperationMetadata(ResourceOperation resourceOperation) {
+    private ResourceOperationMetadata createResourceOperationMetadata(Operation operation) {
         ResourceOperationMetadata resourceOperationMetadata = new ResourceOperationMetadata();
-        resourceOperationMetadata.setName(resourceOperation.name());
-        resourceOperationMetadata.setResourceId(resourceOperation.resourceId());
-        resourceOperationMetadata.setActions(resourceOperation.actions());
-        resourceOperationMetadata.setProtected(resourceOperation.isProtected());
+        resourceOperationMetadata.setName(operation.name());
+        resourceOperationMetadata.setResourceId(operation.resourceId());
+        resourceOperationMetadata.setProtected(operation.isProtected());
         return resourceOperationMetadata;
     }
 

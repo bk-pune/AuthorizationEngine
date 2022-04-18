@@ -1,6 +1,5 @@
 package com.bk.engine;
 
-import com.bk.exception.ResourceDefinitionException;
 import com.bk.policy.AuthorizationPolicy;
 import com.bk.policy.Statement;
 import com.bk.registry.AuthorizationModel;
@@ -34,7 +33,7 @@ public class AuthorizationEngineImpl implements AuthorizationEngine {
         }
 
         if(!fromUri.getProtected()) {
-            return true; // if the ResourceOperation is defined, but it is not protected API (such as protocol metadata endpoint)
+            return true; // if the ResourceOperation is defined, but it is not protected API (such as SAML/OAUTH metadata endpoint)
         }
 
         // find out if the above ResourceOperationMetadata is present in policy definition
