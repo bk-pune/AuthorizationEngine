@@ -1,8 +1,12 @@
 package com.bk.model;
 
 import com.bk.policy.AuthorizationPolicy;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created By: bhushan.karmarkar12@gmail.com
@@ -10,9 +14,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestUtils {
 
-    private static final String SAMPLE_POLICY = "{\"id\":1,\"enabled\":true,\"modifiedOn\":1211315545,\"modifiedBy\":\"admin\",\"statements\":[{\"id\":\"1\",\"resourceId\":\"user\",\"operations\":[\"getUser\"]},{\"id\":\"1\",\"resourceId\":\"role\",\"operations\":[\"fetchRole\",\"op2\"]}]}";
-    public static final AuthorizationPolicy getSamplePolicy() throws JsonProcessingException {
+    public static final String ADMIN_POLICY = "ADMIN_POLICY";
+    public static final String GUEST_POLICY = "GUEST_POLICY";
+
+    private static Map<String, AuthorizationPolicy> policyMap;
+
+    static {
+        policyMap = new HashMap<>();
+        try {
+            initPolicies();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void initPolicies() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(SAMPLE_POLICY, AuthorizationPolicy.class);
+        AuthorizationPolicy authorizationPolicy = objectMapper.readValue(new ClassPathResource("./policies/admin_policy.json").getFile(), AuthorizationPolicy.class);
+        policyMap.put(authorizationPolicy.getName(), authorizationPolicy);
+        authorizationPolicy = objectMapper.readValue(new ClassPathResource("./policies/guest_policy.json").getFile(), AuthorizationPolicy.class);
+        policyMap.put(authorizationPolicy.getName(), authorizationPolicy);
+    }
+
+    public static final AuthorizationPolicy getPolicy(String policyName) {
+        return policyMap.get(policyName);
     }
 }

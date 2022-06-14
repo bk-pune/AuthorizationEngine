@@ -1,7 +1,9 @@
 package com.bk.unittests;
 
+import com.bk.cache.PrincipalCache;
 import com.bk.engine.AuthorizationEngine;
 import com.bk.engine.AuthorizationEngineImpl;
+import com.bk.identity.Principal;
 import com.bk.model.TestUtils;
 import com.bk.policy.AuthorizationPolicy;
 import com.bk.registry.AuthorizationModel;
@@ -41,7 +43,10 @@ public class AuthorizationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private PrincipalCache principalCache;
     private AuthorizationModel authorizationModel;
+    AuthorizationEngine authorizationEngine;
+
 
     @Before
     public void setup() {
@@ -49,6 +54,8 @@ public class AuthorizationTest {
         List<HandlerMapping> handlerMappings = dispatcherServlet.getHandlerMappings();
         RequestMappingHandlerMapping requestMappingHandlerMapping = (RequestMappingHandlerMapping) handlerMappings.stream().filter(handlerMapping -> handlerMapping instanceof RequestMappingHandlerMapping).collect(Collectors.toList()).get(0);
         authorizationModel = new AuthorizationModel(requestMappingHandlerMapping);
+        principalCache = new PrincipalCache();
+        authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
     }
 
     @Test
@@ -68,32 +75,61 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void testAuthorizationEngine() throws JsonProcessingException {
-        AuthorizationEngine authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
-        AuthorizationPolicy samplePolicy = TestUtils.getSamplePolicy();
+    public void testAdminPrincipal() throws JsonProcessingException {
+        Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.ADMIN_USERNAME);
 
-        boolean authorized = authorizationEngine.isAuthorized(samplePolicy, "/getUser");
+        boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
         Assert.assertTrue(authorized);
 
-        authorized = authorizationEngine.isAuthorized(samplePolicy, "/updateUser");
-        Assert.assertFalse(authorized);
+        authorized = authorizationEngine.isAuthorized(adminPrincipal, "/updateUser");
+        Assert.assertTrue(authorized);
     }
+
+    @Test
+    public void testGuestPrincipal() throws JsonProcessingException {
+        Principal guestPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_USERNAME);
+
+        boolean authorized = authorizationEngine.isAuthorized(guestPrincipal, "/getUser");
+        Assert.assertFalse(authorized);
+
+        authorized = authorizationEngine.isAuthorized(guestPrincipal, "/updateUser");
+        Assert.assertFalse(authorized);
+
+        authorized = authorizationEngine.isAuthorized(guestPrincipal, "/hello");
+        Assert.assertTrue(authorized);
+
+    }
+
+    @Test
+    public void testElevatedPrincipal() throws JsonProcessingException {
+        Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_ELEVATED_USERNAME);
+
+        boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
+        Assert.assertTrue(authorized);
+
+        authorized = authorizationEngine.isAuthorized(adminPrincipal, "/updateUser");
+        Assert.assertTrue(authorized);
+    }
+
 
     @Test
     public void testDisabledPolicy() throws JsonProcessingException {
         AuthorizationEngine authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
-        AuthorizationPolicy samplePolicy = TestUtils.getSamplePolicy();
+        AuthorizationPolicy samplePolicy = TestUtils.getPolicy(TestUtils.ADMIN_POLICY);
         samplePolicy.setEnabled(Boolean.FALSE);
 
-        boolean authorized = authorizationEngine.isAuthorized(samplePolicy, "/getUser");
+        Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.ADMIN_USERNAME);
+        boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
         Assert.assertFalse(authorized);
+        samplePolicy.setEnabled(Boolean.TRUE); // must
+
     }
 
     @Test
     public void testInvalidURI() throws JsonProcessingException {
         AuthorizationEngine authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
-        AuthorizationPolicy samplePolicy = TestUtils.getSamplePolicy();
-        boolean authorized = authorizationEngine.isAuthorized(samplePolicy, "/nonExistingRestUrl");
+        Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_USERNAME);
+        boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/nonExistingRestUrl");
         Assert.assertTrue(authorized); // for uris not having ResourceOperation, the access is allowed
     }
 }

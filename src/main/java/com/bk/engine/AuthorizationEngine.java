@@ -1,7 +1,6 @@
 package com.bk.engine;
 
-import com.bk.exception.ResourceDefinitionException;
-import com.bk.policy.AuthorizationPolicy;
+import com.bk.identity.Principal;
 
 /**
  * Created By: bhushan.karmarkar12@gmail.com
@@ -11,9 +10,11 @@ public interface AuthorizationEngine {
 
     /**
      * Check if the given principal is authorized to access the given url
+     *
+     * @param principal
      * @param url
      *
      * @return True if access is allowed, false otherwise
      */
-    boolean isAuthorized(AuthorizationPolicy policy, String url); // TODO correct arguments
+    boolean isAuthorized(Principal principal, String url); // TODO correct arguments
 }

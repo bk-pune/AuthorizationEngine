@@ -1,5 +1,7 @@
-package com.bk.filter;
+package com.bk.config;
 
+import com.bk.filter.AuthorizationFilter;
+import com.bk.impl.DefaultAuthorizationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

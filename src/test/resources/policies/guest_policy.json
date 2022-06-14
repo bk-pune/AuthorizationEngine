@@ -1,0 +1,16 @@
+{
+  "id":2,
+  "name": "GUEST_POLICY",
+  "enabled":true,
+  "modifiedOn":1211315545,
+  "modifiedBy":"admin",
+  "statements":[
+    {
+      "id":"1",
+      "resourceId":"none",
+      "operations":[
+        "hello"
+      ]
+    }
+  ]
+}

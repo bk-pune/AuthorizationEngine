@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public class AuthorizationModel implements Registry {
     public static final String PACKAGE_COM_BK = "com.bk";
+    private static final String NONE = "none";
 
     private RequestMappingHandlerMapping mapping;
 
@@ -86,6 +87,11 @@ public class AuthorizationModel implements Registry {
     }
 
     private void scanProjectForResources(Reflections reflections) {
+        // TODO - figure out good strategy for APIs which do not operate on a resource
+        ResourceMetadata noneResource = new ResourceMetadata();
+        noneResource.setId(NONE);
+        resources.put(NONE, noneResource);
+
         Set<Class<?>> annotatedResources = reflections.getTypesAnnotatedWith(Resource.class);
         for(Class clazz: annotatedResources) {
             Resource resource = (Resource) clazz.getAnnotation(Resource.class);
@@ -126,7 +132,7 @@ public class AuthorizationModel implements Registry {
     private boolean validateResourceOperation(Method method, ResourceOperationMetadata resourceOperationMetadata) {
         boolean resourceConfigured = resources.containsKey(resourceOperationMetadata.getResourceId());
         if(!resourceConfigured) {
-            throw new ResourceDefinitionException("Resource mentioned in ResourceOperation declaration not found: " + resourceOperationMetadata.getName()
+            throw new ResourceDefinitionException("Resource mentioned in ResourceOperation not found: " + resourceOperationMetadata.getName()
             + " on method: " + method.toGenericString());
         }
 

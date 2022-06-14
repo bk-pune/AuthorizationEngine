@@ -13,7 +13,6 @@ import org.junit.Test;
 public class ModelTest {
     @Test
     public void testSamplePolicy() throws JsonProcessingException {
-        AuthorizationPolicy samplePolicy = TestUtils.getSamplePolicy();
-        Assert.assertNotNull(samplePolicy);
+
     }
 }

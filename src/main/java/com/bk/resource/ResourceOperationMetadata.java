@@ -1,7 +1,7 @@
 package com.bk.resource;
 
 /**
- * Complete structure of a ResourceOperation. Maintains all the details of an operation that can be performed on a resource.
+ * Complete structure of a ResourceOperation. Maintains the details of an operation that can be performed on a resource.
  * Created By: bhushan.karmarkar12@gmail.com
  * Date: 23/03/22
  */

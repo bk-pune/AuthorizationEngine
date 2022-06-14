@@ -25,7 +25,7 @@ public @interface Operation {
     /**
      * The resource id on which this Operation works
      * @return
-     */
+     */ // TODO one operation - multiple resources ?
     String resourceId();
 
     /**

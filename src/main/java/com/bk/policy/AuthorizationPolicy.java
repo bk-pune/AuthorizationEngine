@@ -1,7 +1,6 @@
 package com.bk.policy;
 
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Represents an Authorization Policy which can be assigned to a Principal.<br>
@@ -12,17 +11,30 @@ import java.util.UUID;
  * Date: 11/04/22
  */
 public class AuthorizationPolicy {
-    private final String id;
+    private Long id;
+    private String name;
     private Boolean enabled;
     private String modifiedBy;
     private Long modifiedOn;
     private Set<Statement> statements;
 
     public AuthorizationPolicy() {
-        this.id = UUID.randomUUID().toString();
+
     }
 
-    public String getId() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
         return id;
     }
 

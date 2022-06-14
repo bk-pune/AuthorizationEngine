@@ -1,5 +1,8 @@
-package com.bk.filter;
+package com.bk.impl;
 
+import com.bk.cache.PrincipalCache;
+import com.bk.filter.AuthorizationFilter;
+import com.bk.identity.Principal;
 import com.bk.model.TestUtils;
 import com.bk.policy.AuthorizationPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,19 +15,20 @@ import javax.servlet.http.HttpServletResponse;
  * Date: 14/04/22
  */
 public class DefaultAuthorizationFilter extends AuthorizationFilter {
+
+    private PrincipalCache principalCache;
+
+    public DefaultAuthorizationFilter() {
+        principalCache = new PrincipalCache();
+    }
+
     @Override
     public boolean isBypassUrl(String url) {
         return false;
     }
 
     @Override
-    public AuthorizationPolicy extractPolicy(HttpServletRequest request, HttpServletResponse response) {
-        AuthorizationPolicy authorizationPolicy = null;
-        try {
-            authorizationPolicy = TestUtils.getSamplePolicy();
-        } catch (JsonProcessingException e) {
-            System.err.println("Error while parsing sample policy. " +e);
-        }
-        return authorizationPolicy;
+    public Principal extractPrincipal(HttpServletRequest request, HttpServletResponse response) {
+        return principalCache.getPrincipal(request.getParameter("username"));
     }
 }

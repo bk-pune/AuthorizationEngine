@@ -18,6 +18,15 @@ import javax.servlet.http.HttpServletRequest;
 //@Profile({"POSITIVE_TEST"})
 public class UserEntityController {
     @ResourceAccess(operations = {
+            @Operation(name = "hello", urlPattern = "/hello", resourceId = "none")
+    })
+    @GetMapping(value="/hello")
+    @ResponseBody
+    public String helloWorld() {
+        return "Hello Guest!";
+    }
+
+    @ResourceAccess(operations = {
             @Operation(name = "getUser", urlPattern = "/getUser", resourceId = "user")
     })
     @GetMapping(value="/getUser")
@@ -60,4 +69,6 @@ public class UserEntityController {
                 "This is a rest API with pattern in the request mapping-> " +
                 "<i>/fetch/*/entity/*</i><br>Try invoking like /fetch/student/entity/1 or /fetch/role/entity/bhushan";
     }
+
+
 }

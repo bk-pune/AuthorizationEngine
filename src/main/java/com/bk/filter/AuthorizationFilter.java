@@ -2,7 +2,8 @@ package com.bk.filter;
 
 import com.bk.engine.AuthorizationEngine;
 import com.bk.engine.AuthorizationEngineImpl;
-import com.bk.policy.AuthorizationPolicy;
+import com.bk.engine.ResourcePolicyProvider;
+import com.bk.identity.Principal;
 import com.bk.registry.AuthorizationModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -43,8 +44,8 @@ public abstract class AuthorizationFilter implements Filter {
            chain.doFilter(request, response);
         }
         else {
-            AuthorizationPolicy authorizationPolicy = extractPolicy(httpServletRequest, httpServletResponse);
-            boolean authorized = authorizationEngine.isAuthorized(authorizationPolicy, httpServletRequest.getRequestURI());
+            Principal principal = extractPrincipal(httpServletRequest, httpServletResponse);
+            boolean authorized = authorizationEngine.isAuthorized(principal, httpServletRequest.getRequestURI());
             if (authorized) {
                 chain.doFilter(request, response);
             } else {
@@ -62,7 +63,7 @@ public abstract class AuthorizationFilter implements Filter {
      * The authorization policy should be part of the Principal.
      * @param request
      * @param response
-     * @return AuthorizationPolicy obtained from the current request. If no such policy found, returns null.
+     * @return Principal representing a user or a service in this context
      */
-    public abstract AuthorizationPolicy extractPolicy(HttpServletRequest request, HttpServletResponse response);
+    public abstract Principal extractPrincipal(HttpServletRequest request, HttpServletResponse response);
 }
