@@ -1,9 +1,6 @@
 package com.bk.unittests;
 
-import com.bk.model.TestUtils;
-import com.bk.policy.AuthorizationPolicy;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**

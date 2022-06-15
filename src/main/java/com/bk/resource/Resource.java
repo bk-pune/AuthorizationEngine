@@ -1,7 +1,5 @@
 package com.bk.resource;
 
-import com.bk.policy.AuthorizationPolicy;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

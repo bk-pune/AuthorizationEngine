@@ -2,7 +2,6 @@ package com.bk.filter;
 
 import com.bk.engine.AuthorizationEngine;
 import com.bk.engine.AuthorizationEngineImpl;
-import com.bk.engine.ResourcePolicyProvider;
 import com.bk.identity.Principal;
 import com.bk.registry.AuthorizationModel;
 import org.springframework.beans.factory.annotation.Autowired;

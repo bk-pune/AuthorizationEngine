@@ -1,7 +1,6 @@
 package com.bk.policy;
 
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * A statement is used to define access to set of operations on a given resource.<br>

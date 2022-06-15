@@ -3,9 +3,6 @@ package com.bk.impl;
 import com.bk.cache.PrincipalCache;
 import com.bk.filter.AuthorizationFilter;
 import com.bk.identity.Principal;
-import com.bk.model.TestUtils;
-import com.bk.policy.AuthorizationPolicy;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
