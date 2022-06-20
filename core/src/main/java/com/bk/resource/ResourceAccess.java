@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * ResourceOperation defines a specific operation that can be performed on a resource.<br>
- * Put this annotation over the methods which allow principals to perform an action on a Resource.<br>
+ * ResourceAccess defines one or more operations that can be performed on a resource.<br>
+ * Put this annotation over the methods which perform an action on a Resource.<br>
  * Created By: bhushan.karmarkar12@gmail.com
  * Date: 22/03/22
  */

@@ -2,16 +2,14 @@ package com.bk.resource;
 
 /**
  * An Operation that can be performed on a particular Resource.<br>
- * In authorization engine, operation is the finest element, over which, an access can be defined.
- * <br>
  * Created By: bhushan.karmarkar12@gmail.com
  * Date: 14/04/22
  */
 public @interface Operation {
 
     /**
-     * Name of this ResourceOperation, must be unique across the application<br>
-     * E.g. fetch
+     * Name of this Operation, must be unique across the application<br>
+     * E.g. fetch, update, etc.
      * @return
      */
     String name();

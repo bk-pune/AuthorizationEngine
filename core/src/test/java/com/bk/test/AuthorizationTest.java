@@ -1,8 +1,8 @@
-package com.bk.unittests;
+package com.bk.test;
 
 import com.bk.cache.PrincipalCache;
 import com.bk.engine.AuthorizationEngine;
-import com.bk.engine.AuthorizationEngineImpl;
+import com.bk.engine.RESTAuthorizationEngine;
 import com.bk.identity.Principal;
 import com.bk.model.TestUtils;
 import com.bk.policy.AuthorizationPolicy;
@@ -55,7 +55,7 @@ public class AuthorizationTest {
         RequestMappingHandlerMapping requestMappingHandlerMapping = (RequestMappingHandlerMapping) handlerMappings.stream().filter(handlerMapping -> handlerMapping instanceof RequestMappingHandlerMapping).collect(Collectors.toList()).get(0);
         authorizationModel = new AuthorizationModel(requestMappingHandlerMapping);
         principalCache = new PrincipalCache();
-        authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
+        authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class AuthorizationTest {
 
     @Test
     public void testDisabledPolicy() throws JsonProcessingException {
-        AuthorizationEngine authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
+        AuthorizationEngine authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
         AuthorizationPolicy samplePolicy = TestUtils.getPolicy(TestUtils.ADMIN_POLICY);
         samplePolicy.setEnabled(Boolean.FALSE);
 
@@ -127,7 +127,7 @@ public class AuthorizationTest {
 
     @Test
     public void testInvalidURI() throws JsonProcessingException {
-        AuthorizationEngine authorizationEngine = new AuthorizationEngineImpl(authorizationModel);
+        AuthorizationEngine authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
         Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_USERNAME);
         boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/nonExistingRestUrl");
         Assert.assertTrue(authorized); // for uris not having ResourceOperation, the access is allowed

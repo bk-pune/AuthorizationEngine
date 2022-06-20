@@ -10,16 +10,18 @@ import com.bk.resource.ResourceOperationMetadata;
 import java.util.Set;
 
 /**
+ * Authorization engine for REST endpoints.
+ *
  * Created By: bhushan.karmarkar12@gmail.com
  * Date: 08/04/22
  */
-public class AuthorizationEngineImpl implements AuthorizationEngine {
+public class RESTAuthorizationEngine implements AuthorizationEngine {
     private AuthorizationModel authorizationModel;
 
     // TODO
     // private ResourcePolicyProvider resourcePolicyProvider;
 
-    public AuthorizationEngineImpl(AuthorizationModel authorizationModel) {
+    public RESTAuthorizationEngine(AuthorizationModel authorizationModel) {
         this.authorizationModel = authorizationModel;
         // this.resourcePolicyProvider = resourcePolicyProvider;
     }

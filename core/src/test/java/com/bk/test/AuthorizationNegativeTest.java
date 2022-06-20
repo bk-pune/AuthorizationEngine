@@ -1,4 +1,4 @@
-package com.bk.unittests;
+package com.bk.test;
 
 import com.bk.rest.UserEntityControllerIncorrectDef;
 import org.junit.Assert;

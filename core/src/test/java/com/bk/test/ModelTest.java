@@ -1,4 +1,4 @@
-package com.bk.unittests;
+package com.bk.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
