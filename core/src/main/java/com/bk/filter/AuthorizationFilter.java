@@ -21,37 +21,31 @@ import java.io.IOException;
 public abstract class AuthorizationFilter implements Filter {
 
     private AuthorizationEngine authorizationEngine;
-
+    private final String basePackage;
     @Autowired
     private ApplicationContext applicationContext;
 
+    public AuthorizationFilter(String basePackage) {
+        this.basePackage = basePackage;
+    }
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         initAuthorizationModel();
     }
-
     private void initAuthorizationModel() {
         RequestMappingHandlerMapping requestMappingHandlerMapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
-        authorizationEngine = new RESTAuthorizationEngine(new AuthorizationModel(requestMappingHandlerMapping));
+        authorizationEngine = new RESTAuthorizationEngine(new AuthorizationModel(basePackage, requestMappingHandlerMapping));
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        if(isBypassUrl(httpServletRequest.getRequestURI())) {
-           chain.doFilter(request, response);
-        }
-        else {
+        if (!isBypassUrl(httpServletRequest.getRequestURI())) {
             Principal principal = extractPrincipal(httpServletRequest, httpServletResponse);
-            boolean authorized = authorizationEngine.isAuthorized(principal, httpServletRequest.getRequestURI());
-            if (authorized) {
-                chain.doFilter(request, response);
-            } else {
-                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                // generate unauthorized response
-            }
+            authorizationEngine.isAuthorized(principal, httpServletRequest.getRequestURI());
         }
+        chain.doFilter(request, response);
     }
 
     public abstract boolean isBypassUrl(String url);

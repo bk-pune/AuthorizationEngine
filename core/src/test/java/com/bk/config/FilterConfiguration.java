@@ -22,6 +22,6 @@ public class FilterConfiguration {
 
     @Bean
     public AuthorizationFilter getAuthorizationFilter() {
-        return new DefaultAuthorizationFilter();
+        return new DefaultAuthorizationFilter("com.bk");
     }
 }

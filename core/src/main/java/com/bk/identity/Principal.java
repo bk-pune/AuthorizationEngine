@@ -2,6 +2,7 @@ package com.bk.identity;
 
 import com.bk.policy.AuthorizationPolicy;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,4 +32,10 @@ public interface Principal extends java.security.Principal {
      * @return Unique id which identifies this Principal
      */
     Long getPrincipalId();
+
+    /**
+     * Authentication, Authorization and related attributes of this principal.
+     * @return Map of attributes for this principal.
+     */
+    Map<String, Object> getAttributes();
 }

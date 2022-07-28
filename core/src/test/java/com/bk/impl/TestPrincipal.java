@@ -4,6 +4,7 @@ import com.bk.identity.Principal;
 import com.bk.identity.Role;
 import com.bk.policy.AuthorizationPolicy;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,6 +37,11 @@ public class TestPrincipal implements Principal {
     @Override
     public Long getPrincipalId() {
         return id;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return null;
     }
 
     @Override

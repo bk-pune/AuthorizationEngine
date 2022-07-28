@@ -1,5 +1,6 @@
 package com.bk.engine;
 
+import com.bk.exception.AuthorizationException;
 import com.bk.identity.Principal;
 import com.bk.identity.Role;
 import com.bk.policy.AuthorizationPolicy;
@@ -27,7 +28,7 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
     }
 
     @Override
-    public boolean isAuthorized(Principal principal, String uri) {//TODO define correct arguments
+    public boolean isAuthorized(Principal principal, String uri) throws AuthorizationException {//TODO define correct arguments
         boolean isPrincipalAuthorized = false;
         boolean isResourceAccessAllowed = false;
 
@@ -39,6 +40,10 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
 
         if (!resourceMetadataFromUri.getProtected()) {
             return true; // if the ResourceOperation is defined, but it is not protected API (such as SAML/OAUTH metadata endpoint)
+        }
+
+        if(principal == null) {
+            throw new AuthorizationException("Principal is null");
         }
 
         // Verify if the resource can be accessed
@@ -56,7 +61,7 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
         return true; // TODO
     }
 
-    private boolean verifyPrincipalIsAuthorized(Principal principal, ResourceOperationMetadata resourceMetadataFromUri) {
+    private boolean verifyPrincipalIsAuthorized(Principal principal, ResourceOperationMetadata resourceMetadataFromUri) throws AuthorizationException {
         boolean isPrincipalAuthorized = false;
         // if principal has role which provides the resource access, then no need to verify the principal policy
 
@@ -64,7 +69,7 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
         // Verify principal roles
         if (roles != null && !roles.isEmpty()) {
             for (Role role : roles) {
-                isPrincipalAuthorized = verifyPrincipalPolicy(role.getPolicy(), resourceMetadataFromUri);
+                isPrincipalAuthorized = verifyPrincipalPolicy(principal, role.getPolicy(), resourceMetadataFromUri);
 
                 // any single role is sufficient to grant access
                 if (isPrincipalAuthorized) {
@@ -77,11 +82,11 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
             return isPrincipalAuthorized;
         } else {
             AuthorizationPolicy principalAuthorizationPolicy = principal.getAuthorizationPolicy();
-            return verifyPrincipalPolicy(principalAuthorizationPolicy, resourceMetadataFromUri);
+            return verifyPrincipalPolicy(principal, principalAuthorizationPolicy, resourceMetadataFromUri);
         }
     }
 
-    private boolean verifyPrincipalPolicy(AuthorizationPolicy principalAuthorizationPolicy, ResourceOperationMetadata resourceMetadataFromUri) {
+    private boolean verifyPrincipalPolicy(Principal principal, AuthorizationPolicy principalAuthorizationPolicy, ResourceOperationMetadata resourceMetadataFromUri) throws AuthorizationException {
         boolean authorized = false;
         if (principalAuthorizationPolicy == null || !principalAuthorizationPolicy.getEnabled()) {
             return false; // should throw exception?
@@ -103,6 +108,11 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
                 break;
             }
         } // statements
+        if(!authorized) {
+            throw new AuthorizationException("Principal '" + principal.getName() +
+                    "' is not authorized to access '" + resourceMetadataFromUri.getName() +
+                    "'.");
+        }
         return authorized;
     }
 }

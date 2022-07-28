@@ -15,7 +15,8 @@ public class DefaultAuthorizationFilter extends AuthorizationFilter {
 
     private PrincipalCache principalCache;
 
-    public DefaultAuthorizationFilter() {
+    public DefaultAuthorizationFilter(String basePackage) {
+        super(basePackage);
         principalCache = new PrincipalCache();
     }
 

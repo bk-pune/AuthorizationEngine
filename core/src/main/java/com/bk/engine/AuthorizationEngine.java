@@ -1,5 +1,6 @@
 package com.bk.engine;
 
+import com.bk.exception.AuthorizationException;
 import com.bk.identity.Principal;
 
 /**
@@ -16,5 +17,5 @@ public interface AuthorizationEngine {
      *
      * @return True if access is allowed, false otherwise
      */
-    boolean isAuthorized(Principal principal, String url); // TODO correct arguments
+    boolean isAuthorized(Principal principal, String url) throws AuthorizationException; // TODO correct arguments
 }

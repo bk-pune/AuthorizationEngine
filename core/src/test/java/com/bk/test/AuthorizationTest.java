@@ -3,13 +3,13 @@ package com.bk.test;
 import com.bk.cache.PrincipalCache;
 import com.bk.engine.AuthorizationEngine;
 import com.bk.engine.RESTAuthorizationEngine;
+import com.bk.exception.AuthorizationException;
 import com.bk.identity.Principal;
 import com.bk.model.TestUtils;
 import com.bk.policy.AuthorizationPolicy;
 import com.bk.registry.AuthorizationModel;
 import com.bk.resource.ResourceOperationMetadata;
 import com.bk.rest.UserEntityController;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,24 +36,22 @@ import java.util.stream.Collectors;
 @SpringBootTest(classes = UserEntityController.class)
 @EnableAutoConfiguration
 @AutoConfigureMockMvc
-//@ActiveProfiles({"POSITIVE_TEST"}) // not working currently
 @TestPropertySource(locations = "classpath:test-application.properties")
 public class AuthorizationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
+    public static final String PACKAGE_COM_BK = "com.bk";
     private PrincipalCache principalCache;
     private AuthorizationModel authorizationModel;
     AuthorizationEngine authorizationEngine;
-
 
     @Before
     public void setup() {
         DispatcherServlet dispatcherServlet = mockMvc.getDispatcherServlet();
         List<HandlerMapping> handlerMappings = dispatcherServlet.getHandlerMappings();
         RequestMappingHandlerMapping requestMappingHandlerMapping = (RequestMappingHandlerMapping) handlerMappings.stream().filter(handlerMapping -> handlerMapping instanceof RequestMappingHandlerMapping).collect(Collectors.toList()).get(0);
-        authorizationModel = new AuthorizationModel(requestMappingHandlerMapping);
+        authorizationModel = new AuthorizationModel(PACKAGE_COM_BK, requestMappingHandlerMapping);
         principalCache = new PrincipalCache();
         authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
     }
@@ -65,7 +63,7 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void testResourceOperation() throws NoSuchMethodException {
+    public void testResourceOperation() {
         ResourceOperationMetadata resourceOperationMetadata = new ResourceOperationMetadata();
         resourceOperationMetadata.setName("getUser");
         Assert.assertTrue(authorizationModel.getResourceMetadata("user").getResourceOperationMetadata().contains(resourceOperationMetadata));
@@ -75,7 +73,7 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void testAdminPrincipal() throws JsonProcessingException {
+    public void testAdminPrincipal() throws AuthorizationException {
         Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.ADMIN_USERNAME);
 
         boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
@@ -86,22 +84,28 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void testGuestPrincipal() throws JsonProcessingException {
+    public void testGuestPrincipal() throws AuthorizationException {
         Principal guestPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_USERNAME);
+        boolean authorized = false;
 
-        boolean authorized = authorizationEngine.isAuthorized(guestPrincipal, "/getUser");
-        Assert.assertFalse(authorized);
+        try {
+            authorized = authorizationEngine.isAuthorized(guestPrincipal, "/getUser");
+        } catch (AuthorizationException e) {
+            Assert.assertTrue(true);
+        }
 
-        authorized = authorizationEngine.isAuthorized(guestPrincipal, "/updateUser");
-        Assert.assertFalse(authorized);
+        try {
+            authorized = authorizationEngine.isAuthorized(guestPrincipal, "/updateUser");
+        } catch (AuthorizationException e) {
+            Assert.assertTrue(true);
+        }
 
         authorized = authorizationEngine.isAuthorized(guestPrincipal, "/hello");
         Assert.assertTrue(authorized);
-
     }
 
     @Test
-    public void testElevatedPrincipal() throws JsonProcessingException {
+    public void testElevatedPrincipal() throws AuthorizationException {
         Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_ELEVATED_USERNAME);
 
         boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
@@ -111,22 +115,24 @@ public class AuthorizationTest {
         Assert.assertTrue(authorized);
     }
 
-
     @Test
-    public void testDisabledPolicy() throws JsonProcessingException {
+    public void testDisabledPolicy() throws AuthorizationException {
         AuthorizationEngine authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
         AuthorizationPolicy samplePolicy = TestUtils.getPolicy(TestUtils.ADMIN_POLICY);
         samplePolicy.setEnabled(Boolean.FALSE);
 
         Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.ADMIN_USERNAME);
-        boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
-        Assert.assertFalse(authorized);
-        samplePolicy.setEnabled(Boolean.TRUE); // must
-
+        try{
+            authorizationEngine.isAuthorized(adminPrincipal, "/getUser");
+        } catch (AuthorizationException e) {
+            Assert.assertTrue(true);
+        } finally {
+            samplePolicy.setEnabled(Boolean.TRUE); // must
+        }
     }
 
     @Test
-    public void testInvalidURI() throws JsonProcessingException {
+    public void testInvalidURI() throws AuthorizationException {
         AuthorizationEngine authorizationEngine = new RESTAuthorizationEngine(authorizationModel);
         Principal adminPrincipal = principalCache.getPrincipal(PrincipalCache.GUEST_USERNAME);
         boolean authorized = authorizationEngine.isAuthorized(adminPrincipal, "/nonExistingRestUrl");

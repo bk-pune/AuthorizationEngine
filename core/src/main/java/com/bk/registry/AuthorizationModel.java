@@ -24,7 +24,6 @@ import java.util.Set;
  * Date: 22/03/22
  */
 public class AuthorizationModel implements Registry {
-    public static final String PACKAGE_COM_BK = "com.bk";
     private static final String NONE = "none";
 
     private RequestMappingHandlerMapping mapping;
@@ -37,13 +36,13 @@ public class AuthorizationModel implements Registry {
 
     private final Map<PathPattern, ResourceOperationMetadata> restApiResourceOperationMapping;
 
-    public AuthorizationModel(RequestMappingHandlerMapping mapping) {
+    public AuthorizationModel(String basePackage, RequestMappingHandlerMapping mapping) {
         resources = new HashMap<>(10);
         resourceOperations = new HashMap<>(10);
         restApiResourceOperationMapping = new HashMap<>();
         this.mapping = mapping;
 
-        Reflections reflections = new Reflections(PACKAGE_COM_BK, Scanners.MethodsAnnotated, Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections(basePackage, Scanners.MethodsAnnotated, Scanners.TypesAnnotated);
         scanProjectForResources(reflections);
         scanProjectForResourceOperations(reflections);
         if(mapping != null) {

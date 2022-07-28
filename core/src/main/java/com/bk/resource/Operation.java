@@ -19,7 +19,7 @@ public @interface Operation {
      * REST API url pattern for this operation. This pattern must match the pattern defined RequestMapping value defined.
      * @return
      */
-    String urlPattern();
+    String urlPattern()  default "";
     /**
      * The resource id on which this Operation works
      * @return
