@@ -4,6 +4,7 @@ import com.bk.exception.AuthorizationException;
 import com.bk.identity.Principal;
 import com.bk.identity.Role;
 import com.bk.policy.AuthorizationPolicy;
+import com.bk.policy.conditions.Condition;
 import com.bk.policy.Statement;
 import com.bk.registry.AuthorizationModel;
 import com.bk.resource.ResourceOperationMetadata;
@@ -99,6 +100,9 @@ public class RESTAuthorizationEngine implements AuthorizationEngine {
             for (String operation : operations) {
                 ResourceOperationMetadata fromPolicy = authorizationModel.getResourceMetadataFromOperationName(operation);
                 if (fromPolicy != null && resourceMetadataFromUri.equals(fromPolicy)) {
+                    /*for(Condition condition: statement.getConditions()) {
+                        Boolean execute = condition.execute();
+                    }*/
                     authorized = true;
                     break;
                 }

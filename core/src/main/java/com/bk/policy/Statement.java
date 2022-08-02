@@ -1,5 +1,7 @@
 package com.bk.policy;
 
+import com.bk.policy.conditions.Condition;
+
 import java.util.Set;
 
 /**
@@ -11,23 +13,28 @@ public class Statement {
     private Long id;
     private String resourceId;
     private Set<String> operations;
-
-    // TODO
-    /*
-    private Condition condition;
-     */
+    private Set<Condition> conditions;
 
     public Statement() {
     }
 
-    public Statement(Long id, String resourceId, Set<String> operations) {
+    public Statement(Long id, String resourceId, Set<String> operations, Set<Condition> conditions) {
         this.id = id;
         this.resourceId = resourceId;
         this.operations = operations;
+        this.conditions = conditions;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Set<Condition> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(Set<Condition> conditions) {
+        this.conditions = conditions;
     }
 
     public void setResourceId(String resourceId) {
